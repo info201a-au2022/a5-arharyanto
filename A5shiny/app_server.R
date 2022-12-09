@@ -1,45 +1,47 @@
 # server.R
-# Load the necessary library
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(shiny)
-library(plotly)
+# Load the necessary libraries
 
-# Obtain the CO2 data name the variable "co2_data"
-# Load Data 
+library(shiny)
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(tidyr)
+library(tidyverse)
+library(shinythemes)
+
+
+# Obtain the CO2 data and name the variable "co2_data"
+# Load Data
 
 co2_data <- read.csv("https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv",
                      stringsAsFactors = FALSE)
 
-
-
-# Consumption CO2 across the country 
-
+# Load consumption of CO2 across the country
 per_capita_consumption <- co2_data %>% 
   select(country, year, gdp, consumption_co2, consumption_co2_per_capita, consumption_co2_per_gdp)
 
-
-# What is the average value of consumption CO2 per capita across all the countries in 2021?
-# ("average_capita") 
-
+# What is the average value of consumption of CO2 per capita across all the countries listed?
+# ("average capita")
 average_capita <- per_capita_consumption %>% 
   filter(year == 2021) %>% 
-  summarize(average_consumption_co2_per_capita = mean(consumption_co2_per_capita, na.rm = TRUE)) %>% 
-  select(average_consumption_co2_per_capita)
+  summarize(average_consumption_co2_per_capita = mean(consumption_co2_per_capita,
+                                                      na.rm = TRUE)) %>% 
+  select(average_consumption_co2_per_capita) %>% 
+  pull()
 
-# What country is the consumption CO2 per capita the highest in 2021?
-# ("highest_consumption_co2_2021")
 
-highest_cosumption_co2_2021 <- per_capita_consumption %>% 
-  filter(year == 2021) %>% 
+# What country has the highest consumption of co2 per capita in 2020?
+# ("highest_consumption_co2_2020")
+
+highest_cosumption_co2_2020 <- per_capita_consumption %>% 
+  filter(year == 2020) %>% 
   filter(consumption_co2_per_capita == max(consumption_co2_per_capita, na.rm = TRUE)) %>% 
-  select(country)
+  select(country) %>% 
+  pull()
 
-# How much has the average value of consumption of CO2 per capita across all of the countries changed over the past 20 years?
-# ("change_over_20_years")
-
-change_over_20_years <- per_capita_consumption %>% 
+# How much has the average value of consumption of the co2 per capita across all countries changed over the last 20 years?
+# ("change_consumption_20_years")
+change_consumption_20_years <- per_capita_consumption %>% 
   filter( year %in% (2001:2021)) %>% 
   group_by(year) %>% 
   summarize(avg_consumption_co2_per_capita = mean(consumption_co2_per_capita, na.rm = TRUE)) %>% 
@@ -47,43 +49,48 @@ change_over_20_years <- per_capita_consumption %>%
   select(change) %>% 
   drop_na()
 
-# To add the scatterplot to shiny
+# Interactive Data Visualization
 
-server <- function(input, output, session) {
+last_65_years_per_capita <- per_capita_consumption %>% 
+  filter(year %in% (1956:2021)) %>% 
+  drop_na() 
+
+# Add scatterplot to shiny
+
+server <- function(input, output) {
   output$selectCountry <- renderUI({
-    selectInput("Country", "Choose Country", choices = unique(change_over_20_years$country))
+    selectInput("Country", "Countries Selection", choices = unique(last_65_years_per_capita$country))
   })
-  output$selectXVar <- renderUI({
-    selectizeInput("x", "Select the X Variable", choices = c("gdp", "year"), selected = "year")
+  output$selectXVariable  <- renderUI({
+    selectizeInput("x", "Select the X variable:", choices = c("gdp", "year"), selected = "year")
   })
-  output$selectYVar <- renderUI({
-    selectizeInput("y", "Select the Y Variable", choices = c("consumption_co2_per_capita", "consumption_co2_per_gdp"), selected = "CO2 Consumptions per capita")
+  output$selectYVariable <- renderUI({
+    selectizeInput('y', 'Select the Y variable', choices = c("consumption_co2_per_capita", "consumption_co2_per_gdp"), selected = "CO2 Consumptions per capita")
   })
+  
   scatterplot <- reactive({
-    plotCountry <- change_over_20_years %>% 
+    plotCountry <- last_65_years_per_capita %>% 
       filter(country %in% input$Country)
+    
+    scatter_plot <- ggplot(plotCountry, aes_string(x =input$x, y = input$y)) +
+      geom_point() +
+      labs(
+        x = input$x,
+        y = input$y,
+        title = "Consumption of CO2 per capita and per GDP in the last 65 years.")
   })
-  scatter_plot <- ggplot(plotCountry,
-                         aes_string(x = input$x,
-                                    y = input$y)) +
-    geom_point() +
-    labs(
-      x = input$x,
-      y = input$y,
-      title = "Consumption of CO2 per capita and per GDP in the Last 20 Years.")
+  
+  output$co2_scatterplot <- renderPlotly({
+    scatter_plot()
+  })
+  output$table1 <- renderTable({
+    table1 <- average_capita
+  })
+  output$table2 <- renderTable({
+    table2 <- highest_cosumption_co2_2020
+  })
+  output$table3 <- renderTable({
+    table3 <- change_consumption_20_years
+  })
 }
-
-output$co2scatterplot <- renderPlotly({
-  scatterplot()
-
-output$table_1 <- renderTable({
-  table_1 <- average_capita
-})
-output$table_2 <- renderTable({
-  table_2 <- highest_cosumption_co2_2021
-})
-output$table_3 <- renderTable({
-  table_3 <- change_over_20_years
-  })
-})
 
