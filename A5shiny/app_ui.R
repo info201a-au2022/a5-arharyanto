@@ -46,7 +46,8 @@ intro_panel <- tabPanel(
     p(em("Qatar")),
     br(),
     p("How much has the average value of consumption of the CO₂ per capita across all countries changed over the last 20 years?"),
-    tableOutput(em("table 3"))
+    
+    
   
   )
 )
@@ -62,9 +63,23 @@ Visualization <- tabPanel(
       uiOutput("selectYVariable")
     ),
     mainPanel(
+      h3("CO₂ Scatterplot"),
+      plotlyOutput("co2_scatterplot"),
+      h4(strong("Overview")),
+      p("This table shows how much CO₂ every country is consuming. Take the U.S. the consumption slowly decreases overtime. This could be a good sign because inhaling CO₂ can cause major health issues.")
       
     ),
     
+  ),
+  sidebarLayout(
+    position = "left",
+    sidebarPanel(
+      h4(strong("Acknowlegdements")),
+      p("I am grateful for this opportunity to research with this dataset. Special thanks to my TA, Yubing Tian for always helping me solve my code. I hope this is helpful to all."
+        ),
+      
+    ),
+    mainPanel()
   )
 )
 

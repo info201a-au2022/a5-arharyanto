@@ -57,15 +57,15 @@ last_65_years_per_capita <- per_capita_consumption %>%
 
 # Add scatterplot to shiny
 
-server <- shinyServer( function(input, output) {
-          output$selectCountry <- renderUI({
+shinyServer(function(input, output) {
+  output$selectCountry <- renderUI({
     selectInput("Country", "Countries Selection", choices = unique(last_65_years_per_capita$country))
   })
   output$selectXVariable  <- renderUI({
-    selectizeInput("x", "Select the X variable:", choices = c("gdp", "year"), selected = "year")
+    selectizeInput("x", "Select the X variable:", choices = c("GDP", "Year"), selected = "year")
   })
   output$selectYVariable <- renderUI({
-    selectizeInput('y', 'Select the Y variable', choices = c("consumption_co2_per_capita", "consumption_co2_per_gdp"), selected = "CO2 Consumptions per capita")
+    selectizeInput('y', 'Select the Y variable', choices = c("Consumption of co2 per CO₂ capita", "Consumption CO₂ per GDP"), selected = "CO2 Consumption per capita")
   })
   
   scatterplot <- reactive({
@@ -74,23 +74,23 @@ server <- shinyServer( function(input, output) {
     
     scatter_plot <- ggplot(plotCountry, aes_string(x =input$x, y = input$y)) +
       geom_point() +
+      scale_color_grey()
       labs(
         x = input$x,
         y = input$y,
-        title = "Consumption of CO2 per capita and per GDP throughout 65 years.")
+        title = "CO2 Consumption per capita and per GDP through 65 years")
   })
   
   output$co2_scatterplot <- renderPlotly({
     scatterplot()
   })
-  output$tableaverage <- renderTable({
-    tableaverage <- average_capita
+  output$table1 <- renderTable({
+    table1 <- average_capita
   })
-  output$tablehighest <- renderTable({
-    tablehighest <- highest_cosumption_co2_2020
+  output$table2 <- renderTable({
+    table2 <- highest_cosumption_co2_2020
   })
-  output$last65 <- renderTable({
-    last65 <- last_65_years_per_capita
+  output$table3 <- renderTable({
+    table3 <- change_consumption_20_years
   })
 })
-
