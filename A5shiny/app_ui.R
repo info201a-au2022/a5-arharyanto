@@ -1,9 +1,11 @@
 # ui.R
 library(shiny)
-library(plotly)
 library(dplyr)
-library(shinythemes)
+library(plotly)
 library(ggplot2)
+library(tidyr)
+library(tidyverse)
+library(shinythemes)
 
 # Tab Panel for Introduction
 intro_panel <- tabPanel(
@@ -11,7 +13,7 @@ intro_panel <- tabPanel(
   titlePanel(strong("CO2 Consumption")),
   mainPanel(
     h3(strong("Abstract")),
-    p("The main purpose of this project is to see the consumption of CO2 throughout over the past 65 years. Every year the consumption of CO2 increases, and I am going to research on which country consumes the most CO2. My main question before starting this research is ‘What actions can we do to reduce this consumption of CO2?” By doing this research, I hope that it could benefit people who are concern with climate change and what kinds of actions they are doing to reduce these consumptions. It also raises major health issues, hopefully at the end of my research the countries who consumes many CO2 could be more aware."
+    p("The main purpose of this project is to see the consumption of CO₂ throughout over the past 65 years. Every year the consumption of CO₂ increases, and I am going to research on which country consumes the most CO₂. My main question before starting this research is ‘What actions can we do to reduce this consumption of CO₂?” By doing this research, I hope that it could benefit people who are concern with climate change and what kinds of actions they are doing to reduce these consumptions. It also raises major health issues, hopefully at the end of my research the countries who consumes many CO₂ could be more aware."
       ),
     br(),
     h3(strong("Variables Used:")),
@@ -36,6 +38,15 @@ intro_panel <- tabPanel(
       ),
       tags$figcaption("Climate Change")
     ),
+    h3("Measures of Consumption of CO₂:"),
+    p("What is the average value of consumption of CO₂ per capita across all the countries listed?"),
+    p(em(4.694)),
+    br(),
+    p("What country has the highest consumption of CO₂ per capita in 2020?"),
+    p(em("Qatar")),
+    br(),
+    p("How much has the average value of consumption of the CO₂ per capita across all countries changed over the last 20 years?"),
+    tableOutput(em("table 3"))
   
   )
 )
@@ -43,7 +54,7 @@ intro_panel <- tabPanel(
 # Tab Panel for Page 2
 Visualization <- tabPanel(
   "Interactive Scatterplot",
-  titlePanel("Scatterplot"),
+  titlePanel("Scatterplot of Consumption of CO₂"),
   sidebarLayout(
     sidebarPanel(
       uiOutput("selectCountry"),
@@ -52,7 +63,8 @@ Visualization <- tabPanel(
     ),
     mainPanel(
       
-    )
+    ),
+    
   )
 )
 
@@ -63,6 +75,6 @@ ui <- navbarPage(
 )
 
 shinyUI(fluidPage(
-  theme = shinytheme("darkly"),
+  theme = shinytheme("cyborg"),
   ui
 ))

@@ -57,8 +57,8 @@ last_65_years_per_capita <- per_capita_consumption %>%
 
 # Add scatterplot to shiny
 
-server <- function(input, output) {
-  output$selectCountry <- renderUI({
+server <- shinyServer( function(input, output) {
+          output$selectCountry <- renderUI({
     selectInput("Country", "Countries Selection", choices = unique(last_65_years_per_capita$country))
   })
   output$selectXVariable  <- renderUI({
@@ -77,20 +77,20 @@ server <- function(input, output) {
       labs(
         x = input$x,
         y = input$y,
-        title = "Consumption of CO2 per capita and per GDP in the last 65 years.")
+        title = "Consumption of CO2 per capita and per GDP throughout 65 years.")
   })
   
   output$co2_scatterplot <- renderPlotly({
-    scatter_plot()
+    scatterplot()
   })
-  output$table1 <- renderTable({
-    table1 <- average_capita
+  output$tableaverage <- renderTable({
+    tableaverage <- average_capita
   })
-  output$table2 <- renderTable({
-    table2 <- highest_cosumption_co2_2020
+  output$tablehighest <- renderTable({
+    tablehighest <- highest_cosumption_co2_2020
   })
-  output$table3 <- renderTable({
-    table3 <- change_consumption_20_years
+  output$last65 <- renderTable({
+    last65 <- last_65_years_per_capita
   })
-}
+})
 
